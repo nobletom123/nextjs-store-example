@@ -12,18 +12,16 @@ import {
   ListItemIcon,
   Divider,
 } from "@mui/material";
-import { FunctionComponent } from "react";
+import { ShoppingBasket, Delete } from "@mui/icons-material";
+import { FunctionComponent, useMemo } from "react";
 import { loremIpsum } from "react-lorem-ipsum";
 
 import _ from "lodash";
 import { GetServerSideProps } from "next";
+import { useProfileContext } from "../../src/contexts/profile-context";
+import { ProductType } from "../../src/types/product";
 
-type ProductDetailsPageProperties = {
-  id: string;
-  image: string;
-  title: string;
-  description: string;
-  rating: number;
+type ProductDetailsPageProperties = ProductType & {
   coreFeatures: string[];
 };
 
@@ -33,8 +31,16 @@ const ProductDetailsPage: FunctionComponent<ProductDetailsPageProperties> = ({
   title,
   description,
   rating,
+  price,
   coreFeatures = [],
 }) => {
+  const { basket = [], addBasketItem, removeBasketItem } = useProfileContext();
+
+  const productInBasket = useMemo(
+    () => basket.some(({ id }) => id === id),
+    [basket]
+  );
+
   return (
     <Container maxWidth="md">
       <Stack divider={<Divider />} spacing={4}>
@@ -47,7 +53,33 @@ const ProductDetailsPage: FunctionComponent<ProductDetailsPageProperties> = ({
           <Stack>
             <Typography variant="h2">{title}</Typography>
             <Rating value={rating} readOnly />
-            <Button onClick={() => {}}>Add To Card</Button>
+            {productInBasket ? (
+              <Button
+                color="error"
+                onClick={() => removeBasketItem(id)}
+                startIcon={<Delete />}
+                variant="outlined"
+              >
+                Remove Item
+              </Button>
+            ) : (
+              <Button
+                startIcon={<ShoppingBasket />}
+                onClick={() =>
+                  addBasketItem({
+                    id,
+                    image,
+                    title,
+                    description,
+                    rating,
+                    price,
+                  })
+                }
+                variant="outlined"
+              >
+                Add Item
+              </Button>
+            )}
           </Stack>
         </Stack>
         <Box>

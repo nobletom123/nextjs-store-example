@@ -1,47 +1,137 @@
-import { Drawer, Grid } from "@mui/material";
-import { Box } from "@mui/system";
+import {
+  Drawer,
+  Grid,
+  MenuItem,
+  Paper,
+  Rating,
+  Select,
+  Stack,
+  Toolbar,
+  Typography,
+  Slider,
+  Container,
+} from "@mui/material";
+import { Box, styled } from "@mui/system";
 import { loremIpsum } from "react-lorem-ipsum";
 import _ from "lodash";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { FunctionComponent } from "react";
 import { ProductCard } from "../../src/components/products/product-card";
+import { productData } from "../../src/mock-api-data/products";
+import { sortAndFilterProducts } from "../../src/utils/sort-and-filter-products";
+import { ProductType, ProductOrderByENUM } from "../../src/types/product";
 
 type ProductIndexProperties = {
-  products: {
-    id: string;
-    image: string;
-    title: string;
-    description: string;
-    rating: number;
-  }[];
+  products: ProductType[];
 };
 
-const drawerWidth: number = 360;
+const StyledRatingContainer = styled("div")({
+  transition: "transform 0.15s ease-in-out",
+  "&:hover": {
+    transform: "scale3d(1.1, 1.1, 1)",
+    cursor: "pointer",
+  },
+});
+
+const drawerWidth: number = 300;
 
 const ProductIndex: FunctionComponent<ProductIndexProperties> = ({
   products = [],
 }) => {
-  const [averageRating, setAverageRating] = useState(5);
-  const [price, setPrice] = useState();
+  const [ratingAndUp, setRatingAndUp] = useState(0);
+  const [orderBy, setOrderBy] = useState<ProductOrderByENUM>(
+    ProductOrderByENUM.Price
+  );
+  const [priceAndUp, setPriceAndUp] = useState<[number, number]>([
+    _.minBy(products, "price")?.price || 0,
+    _.maxBy(products, "price")?.price || 0,
+  ]);
+
+  const filterdProductsList = sortAndFilterProducts(
+    products,
+    priceAndUp,
+    ratingAndUp,
+    orderBy
+  );
+  console.log("filterdProductsList", filterdProductsList);
 
   return (
     <Box>
-      <Drawer style={{ width: drawerWidth }} variant="permanent"></Drawer>
-      <div style={{ marginLeft: drawerWidth }}>
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: {
+            width: drawerWidth,
+            boxSizing: "border-box",
+            padding: "20px",
+          },
+        }}
+      >
+        <Toolbar />
+        <Stack spacing={4}>
+          <Typography>Order By</Typography>
+          <Select
+            value={orderBy}
+            label="Age"
+            onChange={(event) =>
+              setOrderBy(event.target.value as ProductOrderByENUM)
+            }
+          >
+            <MenuItem value="price">Price</MenuItem>
+            <MenuItem value="rating">Rating</MenuItem>
+          </Select>
+          <Typography variant="h6" onClick={() => setRatingAndUp(4)}>
+            Price Range
+          </Typography>
+          <Slider
+            getAriaLabel={() => "Temperature range"}
+            value={priceAndUp}
+            onChange={(event, value) => {
+              console.log("value", value);
+              setPriceAndUp(value as [number, number]);
+            }}
+            valueLabelDisplay="on"
+            max={_.maxBy(products, "price")?.price}
+            min={_.minBy(products, "price")?.price}
+          />
+          <Typography variant="h6" onClick={() => setRatingAndUp(4)}>
+            Customer Review
+          </Typography>
+          <Box>
+            {_.times(4).map((el, index, arry) => (
+              <StyledRatingContainer
+                onClick={() => setRatingAndUp(arry.length - index)}
+              >
+                <Rating value={arry.length - index} readOnly size="small" />
+              </StyledRatingContainer>
+            ))}
+          </Box>
+        </Stack>
+      </Drawer>
+      <Container
+        style={{ marginLeft: drawerWidth }}
+        sx={{ pt: "25px", pb: "25px" }}
+      >
         <Grid container spacing={4}>
-          {products.map(({ id, image, title, description, rating }) => (
-            <Grid item key={id} sm={12} md={6} lg={3}>
-              <ProductCard
-                image={image}
-                title={title}
-                description={description}
-                rating={rating}
-              />
-            </Grid>
-          ))}
+          {filterdProductsList.map(
+            ({ id, image, title, description, rating, price }) => (
+              <Grid item key={id} sm={12} md={6} lg={3}>
+                <ProductCard
+                  id={id}
+                  image={image}
+                  title={title}
+                  description={description}
+                  rating={rating}
+                  price={price}
+                />
+              </Grid>
+            )
+          )}
         </Grid>
-      </div>
+      </Container>
     </Box>
   );
 };
@@ -49,15 +139,7 @@ const ProductIndex: FunctionComponent<ProductIndexProperties> = ({
 export const getServerSideProps = () => {
   return {
     props: {
-      products: _.times(_.random(2, 30)).map((el, i) => ({
-        id: i,
-        title: loremIpsum({
-          avgWordsPerSentence: 3,
-          avgSentencesPerParagraph: 1,
-        }),
-        description: loremIpsum({ avgSentencesPerParagraph: 3 }),
-        rating: _.random(0, 5, true),
-      })),
+      products: productData,
     },
   };
 };

@@ -7,6 +7,9 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { theme } from "../src/components/theme";
 import { MainLayout } from "../src/components/layout/main-layout";
 import createEmotionCache from "../src/create-emotion-cache";
+import { ProfileContextProvider } from "../src/contexts/profile-context";
+import { useState } from "react";
+import { ProductType } from "../src/types/product";
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -17,15 +20,39 @@ interface MyAppProps extends AppProps {
 
 function MyApp(props: MyAppProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
+  const [{ user, basket }, setProfileContextState] = useState<{
+    user: any;
+    basket: ProductType[];
+  }>({
+    user: null,
+    basket: [],
+  });
 
   return (
     <CacheProvider value={emotionCache}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <MainLayout>
-          <Component {...pageProps} />;
-        </MainLayout>
-      </ThemeProvider>
+      <ProfileContextProvider
+        value={{
+          user,
+          basket,
+          addBasketItem: (item) =>
+            setProfileContextState((state) => ({
+              ...state,
+              basket: state.basket.concat(item),
+            })),
+          removeBasketItem: (itemId) =>
+            setProfileContextState((state) => ({
+              ...state,
+              basket: state.basket.filter(({ id }) => id !== itemId),
+            })),
+        }}
+      >
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <MainLayout>
+            <Component {...pageProps} />;
+          </MainLayout>
+        </ThemeProvider>
+      </ProfileContextProvider>
     </CacheProvider>
   );
 }
