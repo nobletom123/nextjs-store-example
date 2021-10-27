@@ -17,10 +17,11 @@ import _ from "lodash";
 import { useMemo, useState } from "react";
 
 import { FunctionComponent } from "react";
-import { ProductCard } from "../../src/components/products/product-card";
+import { ProductCard } from "../../src/client/components/products/product-card";
 import { productData } from "../../src/mock-api-data/products";
-import { sortAndFilterProducts } from "../../src/utils/sort-and-filter-products";
+import { sortAndFilterProducts } from "../../src/client/utils/sort-and-filter-products";
 import { ProductType, ProductOrderByENUM } from "../../src/types/product";
+import { motion } from "framer-motion";
 
 type ProductIndexProperties = {
   products: ProductType[];
@@ -71,7 +72,7 @@ const ProductIndex: FunctionComponent<ProductIndexProperties> = ({
         }}
       >
         <Toolbar />
-        <Stack spacing={4}>
+        <Stack spacing={3}>
           <Typography>Order By</Typography>
           <Select
             value={orderBy}
@@ -93,7 +94,7 @@ const ProductIndex: FunctionComponent<ProductIndexProperties> = ({
               console.log("value", value);
               setPriceAndUp(value as [number, number]);
             }}
-            valueLabelDisplay="on"
+            valueLabelDisplay="auto"
             max={_.maxBy(products, "price")?.price}
             min={_.minBy(products, "price")?.price}
           />
@@ -117,16 +118,26 @@ const ProductIndex: FunctionComponent<ProductIndexProperties> = ({
       >
         <Grid container spacing={4}>
           {filterdProductsList.map(
-            ({ id, image, title, description, rating, price }) => (
+            ({ id, image, title, description, rating, price }, index) => (
               <Grid item key={id} sm={12} md={6} lg={3}>
-                <ProductCard
-                  id={id}
-                  image={image}
-                  title={title}
-                  description={description}
-                  rating={rating}
-                  price={price}
-                />
+                <motion.div
+                  initial={{ opacity: 0, y: "100%" }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    transition: { delay: index * 0.3 },
+                  }}
+                  exit={{ opacity: 0, y: "-100%" }}
+                >
+                  <ProductCard
+                    id={id}
+                    image={image}
+                    title={title}
+                    description={description}
+                    rating={rating}
+                    price={price}
+                  />
+                </motion.div>
               </Grid>
             )
           )}

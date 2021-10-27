@@ -4,10 +4,10 @@ import { ThemeProvider } from "@mui/material";
 import { CacheProvider, EmotionCache } from "@emotion/react";
 import CssBaseline from "@mui/material/CssBaseline";
 
-import { theme } from "../src/components/theme";
-import { MainLayout } from "../src/components/layout/main-layout";
-import createEmotionCache from "../src/create-emotion-cache";
-import { ProfileContextProvider } from "../src/contexts/profile-context";
+import { theme } from "../src/client/theme";
+import { MainLayout } from "../src/client/components/layout/main-layout";
+import createEmotionCache from "../src/client/create-emotion-cache";
+import { ProfileContextProvider } from "../src/client/contexts/profile-context";
 import { useState } from "react";
 import { ProductType } from "../src/types/product";
 

@@ -16,7 +16,7 @@ import { useMemo, useState, ChangeEvent } from "react";
 import currencyFormatter from "currency-formatter";
 
 import { loremIpsum } from "react-lorem-ipsum";
-import { useProfileContext } from "../../../src/contexts/profile-context";
+import { useProfileContext } from "../../../src/client/contexts/profile-context";
 import { useRouter } from "next/dist/client/router";
 
 const AccountBasket = () => {
