@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { ProductType } from "../types/product";
+import { ProductType } from "../../types/product";
 
 type ProfileDataType = {
   user: any;
