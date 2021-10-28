@@ -18,7 +18,7 @@ import { loremIpsum } from "react-lorem-ipsum";
 
 import _ from "lodash";
 import { GetServerSideProps } from "next";
-import { useProfileContext } from "../../src/contexts/profile-context";
+import { useProfileContext } from "../../src/client/contexts/profile-context";
 import { ProductType } from "../../src/types/product";
 
 type ProductDetailsPageProperties = ProductType & {
